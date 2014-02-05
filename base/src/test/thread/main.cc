@@ -85,12 +85,20 @@ static void test_stack_alignment_varargs(char const *format, ...)
 }
 
 
+static void log_stack_address(char const *who)
+{
+	long dummy;
+	printf("%s stack @ %p\n", who, &dummy);
+}
+
+
 struct Stack_helper : Thread<0x2000>
 {
 	Stack_helper() : Thread<0x2000>("stack_helper") { }
 
 	void entry()
 	{
+		log_stack_address("helper");
 		test_stack_alignment_varargs("%f\n%g\n", 3.142, 2.718);
 	}
 };
@@ -103,6 +111,7 @@ static void test_stack_alignment()
 	helper.start();
 	helper.join();
 
+	log_stack_address("main");
 	test_stack_alignment_varargs("%f\n%g\n", 3.142, 2.718);
 }
 
